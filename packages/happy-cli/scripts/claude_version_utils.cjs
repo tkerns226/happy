@@ -67,6 +67,17 @@ function findClaudeInPath() {
         const claudePath = result.split('\n')[0].trim(); // Take first match
         if (!claudePath) return null;
 
+        // On Windows, 'where claude' may return a bash shim (no extension) that
+        // Node's spawn() cannot execute. Prefer the .cmd wrapper or resolve to
+        // the underlying cli.js via npm global root.
+        if (process.platform === 'win32' && !claudePath.endsWith('.exe') && !claudePath.endsWith('.cmd') && !claudePath.endsWith('.js') && !claudePath.endsWith('.cjs')) {
+            // Try to find the actual cli.js through npm global root
+            const npmCliPath = findNpmGlobalCliPath();
+            if (npmCliPath) {
+                return { path: npmCliPath, source: 'npm' };
+            }
+        }
+
         // Check existence BEFORE resolving (from tiann/PR#83)
         if (!fs.existsSync(claudePath)) return null;
 

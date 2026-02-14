@@ -28,14 +28,31 @@ const STANDARD_TOOLS: Record<string, string> = {
     'TodoWrite': 'Update Tasks',
     'TodoRead': 'Read Tasks',
     'Task': 'Launch Agent',
+    'TaskCreate': 'Create Task',
+    'TaskUpdate': 'Update Task',
+    'TaskList': 'List Tasks',
+    'TaskGet': 'Get Task',
+    'TaskStop': 'Stop Task',
+    'TaskOutput': 'Get Task Output',
+
+    // Team management
+    'TeamCreate': 'Create Team',
+    'TeamDelete': 'Delete Team',
+    'SendMessage': 'Send Message',
     
     // Web tools
     'WebFetch': 'Fetch Web Page',
     'WebSearch': 'Search Web',
     
-    // Special cases
+    // Interactive tools
+    'AskUserQuestion': 'Ask a Question',
+
+    // Plan and navigation
     'exit_plan_mode': 'Execute Plan',
-    'ExitPlanMode': 'Execute Plan'
+    'ExitPlanMode': 'Execute Plan',
+    'EnterPlanMode': 'Enter Plan Mode',
+    'Skill': 'Run Skill',
+    'ToolSearch': 'Search Tools'
 };
 
 /**

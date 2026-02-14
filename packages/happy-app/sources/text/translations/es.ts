@@ -504,6 +504,18 @@ export const es: TranslationStructure = {
             applyChanges: 'Actualizar archivo',
             viewDiff: 'Cambios del archivo actual',
             question: 'Pregunta',
+            taskCreate: 'Crear tarea',
+            taskUpdate: 'Actualizar tarea',
+            taskList: 'Lista de tareas',
+            taskGet: 'Obtener tarea',
+            taskStop: 'Detener tarea',
+            taskOutput: 'Salida de tarea',
+            teamCreate: 'Crear equipo',
+            teamDelete: 'Eliminar equipo',
+            sendMessage: 'Enviar mensaje',
+            enterPlanMode: 'Modo de planificación',
+            skill: 'Habilidad',
+            toolSearch: 'Buscar herramientas',
         },
         desc: {
             terminalCmd: ({ cmd }: { cmd: string }) => `Terminal(cmd: ${cmd})`,
@@ -528,7 +540,21 @@ export const es: TranslationStructure = {
             other: 'Otro',
             otherDescription: 'Escribe tu propia respuesta',
             otherPlaceholder: 'Escribe tu respuesta...',
-        }
+        },
+        taskTools: {
+            taskCount: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'tarea', plural: 'tareas' })}`,
+            taskId: ({ id }: { id: string }) => `Tarea #${id}`,
+            updateStatus: ({ id, status }: { id: string; status: string }) => `Tarea #${id} → ${status}`,
+            owner: ({ name }: { name: string }) => `Propietario: ${name}`,
+            blockedBy: ({ ids }: { ids: string }) => `Bloqueado por: #${ids}`,
+            stopTask: ({ id }: { id: string }) => `Detener tarea #${id}`,
+            taskOutput: ({ id }: { id: string }) => `Salida de tarea #${id}`,
+        },
+        teamTools: {
+            messageTo: ({ name }: { name: string }) => `Mensaje para ${name}`,
+            broadcast: 'Difusión a todos',
+            shutdownRequest: ({ name }: { name: string }) => `Solicitud de cierre a ${name}`,
+        },
     },
 
     files: {
@@ -764,6 +790,10 @@ export const es: TranslationStructure = {
             yesAllowAllEdits: 'Sí, permitir todas las ediciones durante esta sesión',
             yesForTool: 'Sí, no volver a preguntar para esta herramienta',
             noTellClaude: 'No, proporcionar comentarios',
+            approvePlan: 'Aprobar plan',
+            approveAllowEdits: 'Aprobar + permitir ediciones',
+            approveFullAccess: 'Aprobar + acceso completo',
+            rejectPlan: 'Rechazar plan',
         }
     },
 

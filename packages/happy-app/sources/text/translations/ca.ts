@@ -504,6 +504,18 @@ export const ca: TranslationStructure = {
             applyChanges: 'Actualitza fitxer',
             viewDiff: 'Canvis del fitxer actual',
             question: 'Pregunta',
+            taskCreate: 'Crear tasca',
+            taskUpdate: 'Actualitzar tasca',
+            taskList: 'Llista de tasques',
+            taskGet: 'Obtenir tasca',
+            taskStop: 'Aturar tasca',
+            taskOutput: 'Sortida de tasca',
+            teamCreate: 'Crear equip',
+            teamDelete: 'Eliminar equip',
+            sendMessage: 'Enviar missatge',
+            enterPlanMode: 'Mode de planificació',
+            skill: 'Habilitat',
+            toolSearch: 'Cercar eines',
         },
         desc: {
             terminalCmd: ({ cmd }: { cmd: string }) => `Terminal(cmd: ${cmd})`,
@@ -528,7 +540,21 @@ export const ca: TranslationStructure = {
             other: 'Altres',
             otherDescription: 'Escriu la teva pròpia resposta',
             otherPlaceholder: 'Escriu la teva resposta...',
-        }
+        },
+        taskTools: {
+            taskCount: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'tasca', plural: 'tasques' })}`,
+            taskId: ({ id }: { id: string }) => `Tasca #${id}`,
+            updateStatus: ({ id, status }: { id: string; status: string }) => `Tasca #${id} → ${status}`,
+            owner: ({ name }: { name: string }) => `Propietari: ${name}`,
+            blockedBy: ({ ids }: { ids: string }) => `Bloquejat per: #${ids}`,
+            stopTask: ({ id }: { id: string }) => `Aturar tasca #${id}`,
+            taskOutput: ({ id }: { id: string }) => `Sortida de tasca #${id}`,
+        },
+        teamTools: {
+            messageTo: ({ name }: { name: string }) => `Missatge per a ${name}`,
+            broadcast: 'Difusió a tots',
+            shutdownRequest: ({ name }: { name: string }) => `Sol·licitud de tancament a ${name}`,
+        },
     },
 
     files: {
@@ -764,6 +790,10 @@ export const ca: TranslationStructure = {
             yesAllowAllEdits: 'Sí, permet totes les edicions durant aquesta sessió',
             yesForTool: 'Sí, no tornis a preguntar per aquesta eina',
             noTellClaude: 'No, proporciona comentaris',
+            approvePlan: 'Aprova el pla',
+            approveAllowEdits: 'Aprova + permet edicions',
+            approveFullAccess: 'Aprova + accés complet',
+            rejectPlan: 'Rebutja el pla',
         }
     },
 

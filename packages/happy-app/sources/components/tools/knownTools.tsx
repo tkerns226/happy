@@ -17,6 +17,9 @@ const ICON_EXIT = (size: number = 24, color: string = '#000') => <Ionicons name=
 const ICON_TODO = (size: number = 24, color: string = '#000') => <Ionicons name="bulb-outline" size={size} color={color} />;
 const ICON_REASONING = (size: number = 24, color: string = '#000') => <Octicons name="light-bulb" size={size} color={color} />;
 const ICON_QUESTION = (size: number = 24, color: string = '#000') => <Ionicons name="help-circle-outline" size={size} color={color} />;
+const ICON_TASKLIST = (size: number = 24, color: string = '#000') => <Octicons name="checklist" size={size} color={color} />;
+const ICON_TEAM = (size: number = 24, color: string = '#000') => <Octicons name="people" size={size} color={color} />;
+const ICON_MESSAGE = (size: number = 24, color: string = '#000') => <Ionicons name="chatbubble-outline" size={size} color={color} />;
 
 export const knownTools = {
     'Task': {
@@ -164,14 +167,30 @@ export const knownTools = {
         title: t('tools.names.planProposal'),
         icon: ICON_EXIT,
         input: z.object({
-            plan: z.string().describe('The plan you came up with')
+            plan: z.string().describe('The plan you came up with'),
+            allowedPrompts: z.array(z.object({
+                tool: z.string().describe('The tool this prompt applies to'),
+                prompt: z.string().describe('Semantic description of the action'),
+            })).optional().describe('Prompt-based permissions needed to implement the plan'),
+            pushToRemote: z.boolean().optional().describe('Whether to push the plan to a remote session'),
+            remoteSessionId: z.string().optional().describe('The remote session ID'),
+            remoteSessionUrl: z.string().optional().describe('The remote session URL'),
+            remoteSessionTitle: z.string().optional().describe('The remote session title'),
         }).partial().passthrough()
     },
     'exit_plan_mode': {
         title: t('tools.names.planProposal'),
         icon: ICON_EXIT,
         input: z.object({
-            plan: z.string().describe('The plan you came up with')
+            plan: z.string().describe('The plan you came up with'),
+            allowedPrompts: z.array(z.object({
+                tool: z.string().describe('The tool this prompt applies to'),
+                prompt: z.string().describe('Semantic description of the action'),
+            })).optional().describe('Prompt-based permissions needed to implement the plan'),
+            pushToRemote: z.boolean().optional().describe('Whether to push the plan to a remote session'),
+            remoteSessionId: z.string().optional().describe('The remote session ID'),
+            remoteSessionUrl: z.string().optional().describe('The remote session URL'),
+            remoteSessionTitle: z.string().optional().describe('The remote session title'),
         }).partial().passthrough()
     },
     'Read': {
@@ -916,6 +935,272 @@ export const knownTools = {
                 return t('tools.askUserQuestion.multipleQuestions', { count });
             }
             return null;
+        }
+    },
+    'TaskCreate': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.subject === 'string') {
+                return opts.tool.input.subject;
+            }
+            return t('tools.names.taskCreate');
+        },
+        icon: ICON_TASKLIST,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            subject: z.string().describe('A brief title for the task'),
+            description: z.string().describe('A detailed description of what needs to be done'),
+            activeForm: z.string().optional().describe('Present continuous form shown in spinner'),
+            metadata: z.record(z.string(), z.any()).optional().describe('Arbitrary metadata'),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.subject === 'string') {
+                return opts.tool.input.subject;
+            }
+            return t('tools.names.taskCreate');
+        }
+    },
+    'TaskUpdate': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.subject === 'string') {
+                return opts.tool.input.subject;
+            }
+            if (typeof opts.tool.input.taskId === 'string' && typeof opts.tool.input.status === 'string') {
+                return t('tools.taskTools.updateStatus', { id: opts.tool.input.taskId, status: opts.tool.input.status });
+            }
+            return t('tools.names.taskUpdate');
+        },
+        icon: ICON_TASKLIST,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            taskId: z.string().describe('The ID of the task to update'),
+            status: z.enum(['pending', 'in_progress', 'completed', 'deleted']).optional(),
+            subject: z.string().optional(),
+            description: z.string().optional(),
+            activeForm: z.string().optional(),
+            owner: z.string().optional(),
+            metadata: z.record(z.string(), z.any()).optional(),
+            addBlocks: z.array(z.string()).optional(),
+            addBlockedBy: z.array(z.string()).optional(),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            const parts: string[] = [];
+            if (typeof opts.tool.input.taskId === 'string') {
+                parts.push(`#${opts.tool.input.taskId}`);
+            }
+            if (typeof opts.tool.input.status === 'string') {
+                parts.push(opts.tool.input.status);
+            }
+            return parts.length > 0 ? parts.join(' → ') : t('tools.names.taskUpdate');
+        }
+    },
+    'TaskList': {
+        title: t('tools.names.taskList'),
+        icon: ICON_TASKLIST,
+        noStatus: true,
+        minimal: (opts: { metadata: Metadata | null, tool: ToolCall, messages?: Message[] }) => {
+            // Show expanded when we have tasks to display
+            if (opts.tool.result && Array.isArray(opts.tool.result)) {
+                return opts.tool.result.length === 0;
+            }
+            if (opts.tool.result?.tasks && Array.isArray(opts.tool.result.tasks)) {
+                return opts.tool.result.tasks.length === 0;
+            }
+            return true;
+        },
+        input: z.object({}).partial().passthrough(),
+        result: z.object({
+            tasks: z.array(z.object({
+                id: z.string(),
+                subject: z.string(),
+                status: z.enum(['pending', 'in_progress', 'completed']),
+                owner: z.string().optional(),
+                blockedBy: z.array(z.string()).optional(),
+            }).passthrough()).optional(),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            let tasks: any[] | undefined;
+            if (Array.isArray(opts.tool.result)) {
+                tasks = opts.tool.result;
+            } else if (opts.tool.result?.tasks && Array.isArray(opts.tool.result.tasks)) {
+                tasks = opts.tool.result.tasks;
+            }
+            if (tasks) {
+                return t('tools.taskTools.taskCount', { count: tasks.length });
+            }
+            return t('tools.names.taskList');
+        }
+    },
+    'TaskGet': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.taskId === 'string') {
+                return t('tools.taskTools.taskId', { id: opts.tool.input.taskId });
+            }
+            return t('tools.names.taskGet');
+        },
+        icon: ICON_TASKLIST,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            taskId: z.string().describe('The ID of the task to retrieve'),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.taskId === 'string') {
+                return t('tools.taskTools.taskId', { id: opts.tool.input.taskId });
+            }
+            return t('tools.names.taskGet');
+        }
+    },
+    'TeamCreate': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.team_name === 'string') {
+                return opts.tool.input.team_name;
+            }
+            return t('tools.names.teamCreate');
+        },
+        icon: ICON_TEAM,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            team_name: z.string().describe('Name for the new team'),
+            description: z.string().optional().describe('Team description'),
+            agent_type: z.string().optional().describe('Type/role of the team lead'),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.team_name === 'string') {
+                return opts.tool.input.team_name;
+            }
+            return t('tools.names.teamCreate');
+        }
+    },
+    'TeamDelete': {
+        title: t('tools.names.teamDelete'),
+        icon: ICON_TEAM,
+        noStatus: true,
+        minimal: true,
+        input: z.object({}).partial().passthrough(),
+    },
+    'SendMessage': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.recipient === 'string') {
+                return t('tools.teamTools.messageTo', { name: opts.tool.input.recipient });
+            }
+            if (opts.tool.input.type === 'broadcast') {
+                return t('tools.teamTools.broadcast');
+            }
+            return t('tools.names.sendMessage');
+        },
+        icon: ICON_MESSAGE,
+        noStatus: true,
+        minimal: (opts: { metadata: Metadata | null, tool: ToolCall, messages?: Message[] }) => {
+            // Show expanded for messages with content
+            if (typeof opts.tool.input.content === 'string' && opts.tool.input.content.length > 0) {
+                return false;
+            }
+            return true;
+        },
+        input: z.object({
+            type: z.enum(['message', 'broadcast', 'shutdown_request', 'shutdown_response', 'plan_approval_response']),
+            recipient: z.string().optional(),
+            content: z.string().optional(),
+            summary: z.string().optional(),
+            approve: z.boolean().optional(),
+            request_id: z.string().optional(),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.summary === 'string') {
+                return opts.tool.input.summary;
+            }
+            if (typeof opts.tool.input.recipient === 'string') {
+                return t('tools.teamTools.messageTo', { name: opts.tool.input.recipient });
+            }
+            return t('tools.names.sendMessage');
+        },
+        extractSubtitle: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.summary === 'string') {
+                return opts.tool.input.summary;
+            }
+            return null;
+        }
+    },
+    'TaskStop': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.task_id === 'string') {
+                return t('tools.taskTools.stopTask', { id: opts.tool.input.task_id });
+            }
+            return t('tools.names.taskStop');
+        },
+        icon: ICON_TASKLIST,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            task_id: z.string().optional(),
+            shell_id: z.string().optional(),
+        }).partial().passthrough(),
+    },
+    'TaskOutput': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.task_id === 'string') {
+                return t('tools.taskTools.taskOutput', { id: opts.tool.input.task_id });
+            }
+            return t('tools.names.taskOutput');
+        },
+        icon: ICON_TASKLIST,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            task_id: z.string().describe('The task ID to get output from'),
+            block: z.boolean().optional(),
+            timeout: z.number().optional(),
+        }).partial().passthrough(),
+    },
+    'EnterPlanMode': {
+        title: t('tools.names.enterPlanMode'),
+        icon: ICON_EXIT,
+        noStatus: true,
+        minimal: true,
+        input: z.object({}).partial().passthrough(),
+    },
+    'Skill': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.skill === 'string') {
+                return opts.tool.input.skill;
+            }
+            return t('tools.names.skill');
+        },
+        icon: ICON_TASK,
+        noStatus: true,
+        minimal: true,
+        input: z.object({
+            skill: z.string().describe('The skill name'),
+            args: z.string().optional().describe('Optional arguments'),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.skill === 'string') {
+                return opts.tool.input.skill;
+            }
+            return t('tools.names.skill');
+        }
+    },
+    'ToolSearch': {
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.query === 'string') {
+                return opts.tool.input.query;
+            }
+            return t('tools.names.toolSearch');
+        },
+        icon: ICON_SEARCH,
+        minimal: true,
+        input: z.object({
+            query: z.string().describe('Query to find deferred tools'),
+            max_results: z.number().optional(),
+        }).partial().passthrough(),
+        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            if (typeof opts.tool.input.query === 'string') {
+                return opts.tool.input.query;
+            }
+            return t('tools.names.toolSearch');
         }
     }
 } satisfies Record<string, {

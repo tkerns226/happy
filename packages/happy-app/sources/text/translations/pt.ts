@@ -504,6 +504,18 @@ export const pt: TranslationStructure = {
             applyChanges: 'Atualizar arquivo',
             viewDiff: 'Alterações do arquivo atual',
             question: 'Pergunta',
+            taskCreate: 'Criar tarefa',
+            taskUpdate: 'Atualizar tarefa',
+            taskList: 'Lista de tarefas',
+            taskGet: 'Obter tarefa',
+            taskStop: 'Parar tarefa',
+            taskOutput: 'Saída da tarefa',
+            teamCreate: 'Criar equipe',
+            teamDelete: 'Excluir equipe',
+            sendMessage: 'Enviar mensagem',
+            enterPlanMode: 'Modo de planejamento',
+            skill: 'Habilidade',
+            toolSearch: 'Buscar ferramentas',
         },
         desc: {
             terminalCmd: ({ cmd }: { cmd: string }) => `Terminal(cmd: ${cmd})`,
@@ -528,7 +540,21 @@ export const pt: TranslationStructure = {
             other: 'Outro',
             otherDescription: 'Digite sua própria resposta',
             otherPlaceholder: 'Digite sua resposta...',
-        }
+        },
+        taskTools: {
+            taskCount: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'tarefa', plural: 'tarefas' })}`,
+            taskId: ({ id }: { id: string }) => `Tarefa #${id}`,
+            updateStatus: ({ id, status }: { id: string; status: string }) => `Tarefa #${id} → ${status}`,
+            owner: ({ name }: { name: string }) => `Proprietário: ${name}`,
+            blockedBy: ({ ids }: { ids: string }) => `Bloqueado por: #${ids}`,
+            stopTask: ({ id }: { id: string }) => `Parar tarefa #${id}`,
+            taskOutput: ({ id }: { id: string }) => `Saída da tarefa #${id}`,
+        },
+        teamTools: {
+            messageTo: ({ name }: { name: string }) => `Mensagem para ${name}`,
+            broadcast: 'Transmissão para todos',
+            shutdownRequest: ({ name }: { name: string }) => `Solicitação de encerramento para ${name}`,
+        },
     },
 
     files: {
@@ -764,6 +790,10 @@ export const pt: TranslationStructure = {
             yesAllowAllEdits: 'Sim, permitir todas as edições durante esta sessão',
             yesForTool: 'Sim, não perguntar novamente para esta ferramenta',
             noTellClaude: 'Não, fornecer feedback',
+            approvePlan: 'Aprovar plano',
+            approveAllowEdits: 'Aprovar + permitir edições',
+            approveFullAccess: 'Aprovar + acesso completo',
+            rejectPlan: 'Rejeitar plano',
         }
     },
 

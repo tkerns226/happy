@@ -23,12 +23,24 @@ interface PermissionFooterProps {
 
 export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, sessionId, toolName, toolInput, metadata }) => {
     const { theme } = useUnistyles();
-    const [loadingButton, setLoadingButton] = useState<'allow' | 'deny' | 'abort' | null>(null);
+    const [loadingButton, setLoadingButton] = useState<'allow' | 'deny' | 'abort' | 'acceptEdits' | 'bypass' | null>(null);
     const [loadingAllEdits, setLoadingAllEdits] = useState(false);
     const [loadingForSession, setLoadingForSession] = useState(false);
-    
+
     // Check if this is a Codex session - check both metadata.flavor and tool name prefix
     const isCodex = metadata?.flavor === 'codex' || toolName.startsWith('Codex');
+    const isPlanMode = toolName === 'exit_plan_mode' || toolName === 'ExitPlanMode';
+
+    // Extract allowedPrompts from ExitPlanMode tool input and convert to allowTools format
+    const planAllowedTools = React.useMemo((): string[] | undefined => {
+        if (!isPlanMode || !toolInput?.allowedPrompts || !Array.isArray(toolInput.allowedPrompts)) return undefined;
+        return toolInput.allowedPrompts.map((p: { tool: string; prompt: string }) => {
+            if (p.tool === 'Bash') {
+                return `Bash(${p.prompt}:*)`;
+            }
+            return p.tool;
+        });
+    }, [isPlanMode, toolInput?.allowedPrompts]);
 
     const handleApprove = async () => {
         if (permission.status !== 'pending' || loadingButton !== null || loadingAllEdits || loadingForSession) return;
@@ -353,6 +365,154 @@ export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, 
         );
     }
 
+    // Plan mode handlers
+    const handlePlanApprove = async (mode: 'default' | 'acceptEdits' | 'bypassPermissions') => {
+        if (permission.status !== 'pending' || loadingButton !== null) return;
+
+        const buttonKey = mode === 'default' ? 'allow' : mode === 'acceptEdits' ? 'acceptEdits' : 'bypass';
+        setLoadingButton(buttonKey as any);
+        try {
+            await sessionAllow(sessionId, permission.id, mode, planAllowedTools);
+            if (mode === 'acceptEdits') {
+                storage.getState().updateSessionPermissionMode(sessionId, 'acceptEdits');
+            } else if (mode === 'bypassPermissions') {
+                storage.getState().updateSessionPermissionMode(sessionId, 'bypassPermissions');
+            }
+        } catch (error) {
+            console.error('Failed to approve plan:', error);
+        } finally {
+            setLoadingButton(null);
+        }
+    };
+
+    // Plan-specific status detection
+    const isApprovedViaBypass = isApproved && permission.mode === 'bypassPermissions';
+
+    // Render plan-specific buttons for ExitPlanMode
+    if (isPlanMode && !isCodex) {
+        return (
+            <View style={styles.container}>
+                <View style={styles.buttonContainer}>
+                    {/* Approve Plan (default mode) */}
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            isPending && styles.buttonAllow,
+                            (isApprovedViaAllow) && styles.buttonSelected,
+                            (isDenied || isApprovedViaAllEdits || isApprovedViaBypass) && styles.buttonInactive
+                        ]}
+                        onPress={() => handlePlanApprove('default')}
+                        disabled={!isPending || loadingButton !== null}
+                        activeOpacity={isPending ? 0.7 : 1}
+                    >
+                        {loadingButton === 'allow' && isPending ? (
+                            <View style={[styles.buttonContent, { width: 40, height: 20, justifyContent: 'center' }]}>
+                                <ActivityIndicator size={Platform.OS === 'ios' ? "small" : 14 as any} color={styles.loadingIndicatorAllow.color} />
+                            </View>
+                        ) : (
+                            <View style={styles.buttonContent}>
+                                <Text style={[
+                                    styles.buttonText,
+                                    isPending && styles.buttonTextAllow,
+                                    isApprovedViaAllow && styles.buttonTextSelected
+                                ]} numberOfLines={1} ellipsizeMode="tail">
+                                    {t('claude.permissions.approvePlan')}
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+
+                    {/* Approve + Allow Edits (acceptEdits mode) */}
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            isPending && styles.buttonAllowAll,
+                            isApprovedViaAllEdits && styles.buttonSelected,
+                            (isDenied || isApprovedViaAllow || isApprovedViaBypass) && styles.buttonInactive
+                        ]}
+                        onPress={() => handlePlanApprove('acceptEdits')}
+                        disabled={!isPending || loadingButton !== null}
+                        activeOpacity={isPending ? 0.7 : 1}
+                    >
+                        {loadingButton === 'acceptEdits' && isPending ? (
+                            <View style={[styles.buttonContent, { width: 40, height: 20, justifyContent: 'center' }]}>
+                                <ActivityIndicator size={Platform.OS === 'ios' ? "small" : 14 as any} color={styles.loadingIndicatorAllowAll.color} />
+                            </View>
+                        ) : (
+                            <View style={styles.buttonContent}>
+                                <Text style={[
+                                    styles.buttonText,
+                                    isPending && styles.buttonTextAllowAll,
+                                    isApprovedViaAllEdits && styles.buttonTextSelected
+                                ]} numberOfLines={1} ellipsizeMode="tail">
+                                    {t('claude.permissions.approveAllowEdits')}
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+
+                    {/* Approve + Full Access (bypassPermissions mode) */}
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            isPending && styles.buttonForSession,
+                            isApprovedViaBypass && styles.buttonSelected,
+                            (isDenied || isApprovedViaAllow || isApprovedViaAllEdits) && styles.buttonInactive
+                        ]}
+                        onPress={() => handlePlanApprove('bypassPermissions')}
+                        disabled={!isPending || loadingButton !== null}
+                        activeOpacity={isPending ? 0.7 : 1}
+                    >
+                        {loadingButton === 'bypass' && isPending ? (
+                            <View style={[styles.buttonContent, { width: 40, height: 20, justifyContent: 'center' }]}>
+                                <ActivityIndicator size={Platform.OS === 'ios' ? "small" : 14 as any} color={styles.loadingIndicatorForSession.color} />
+                            </View>
+                        ) : (
+                            <View style={styles.buttonContent}>
+                                <Text style={[
+                                    styles.buttonText,
+                                    isPending && styles.buttonTextForSession,
+                                    isApprovedViaBypass && styles.buttonTextSelected
+                                ]} numberOfLines={1} ellipsizeMode="tail">
+                                    {t('claude.permissions.approveFullAccess')}
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+
+                    {/* Reject */}
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            isPending && styles.buttonDeny,
+                            isDenied && styles.buttonSelected,
+                            (isApproved) && styles.buttonInactive
+                        ]}
+                        onPress={handleDeny}
+                        disabled={!isPending || loadingButton !== null}
+                        activeOpacity={isPending ? 0.7 : 1}
+                    >
+                        {loadingButton === 'deny' && isPending ? (
+                            <View style={[styles.buttonContent, { width: 40, height: 20, justifyContent: 'center' }]}>
+                                <ActivityIndicator size={Platform.OS === 'ios' ? "small" : 14 as any} color={styles.loadingIndicatorDeny.color} />
+                            </View>
+                        ) : (
+                            <View style={styles.buttonContent}>
+                                <Text style={[
+                                    styles.buttonText,
+                                    isPending && styles.buttonTextDeny,
+                                    isDenied && styles.buttonTextSelected
+                                ]} numberOfLines={1} ellipsizeMode="tail">
+                                    {t('claude.permissions.rejectPlan')}
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
     // Render Claude buttons (existing behavior)
     return (
         <View style={styles.container}>
@@ -386,7 +546,7 @@ export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, 
                 </TouchableOpacity>
 
                 {/* Allow All Edits button - only show for Edit and MultiEdit tools */}
-                {(toolName === 'Edit' || toolName === 'MultiEdit' || toolName === 'Write' || toolName === 'NotebookEdit' || toolName === 'exit_plan_mode' || toolName === 'ExitPlanMode') && (
+                {(toolName === 'Edit' || toolName === 'MultiEdit' || toolName === 'Write' || toolName === 'NotebookEdit') && (
                     <TouchableOpacity
                         style={[
                             styles.button,
@@ -416,8 +576,8 @@ export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, 
                     </TouchableOpacity>
                 )}
 
-                {/* Allow for session button - only show for non-edit, non-exit-plan tools */}
-                {toolName && toolName !== 'Edit' && toolName !== 'MultiEdit' && toolName !== 'Write' && toolName !== 'NotebookEdit' && toolName !== 'exit_plan_mode' && toolName !== 'ExitPlanMode' && (
+                {/* Allow for session button - only show for non-edit tools */}
+                {toolName && toolName !== 'Edit' && toolName !== 'MultiEdit' && toolName !== 'Write' && toolName !== 'NotebookEdit' && (
                     <TouchableOpacity
                         style={[
                             styles.button,

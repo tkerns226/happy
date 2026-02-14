@@ -23,6 +23,7 @@ interface PermissionResponse {
     mode?: 'default' | 'acceptEdits' | 'bypassPermissions' | 'plan';
     allowTools?: string[];
     receivedAt?: number;
+    answers?: Record<string, string>;
 }
 
 
@@ -84,21 +85,42 @@ export class PermissionHandler {
             this.permissionMode = response.mode;
         }
 
-        // Handle 
+        // Handle ExitPlanMode
         if (pending.toolName === 'exit_plan_mode' || pending.toolName === 'ExitPlanMode') {
-            // Handle exit_plan_mode specially
             logger.debug('Plan mode result received', response);
             if (response.approved) {
                 logger.debug('Plan approved - injecting PLAN_FAKE_RESTART');
-                // Inject the approval message at the beginning of the queue
-                if (response.mode && ['default', 'acceptEdits', 'bypassPermissions'].includes(response.mode)) {
-                    this.session.queue.unshift(PLAN_FAKE_RESTART, { permissionMode: response.mode });
-                } else {
-                    this.session.queue.unshift(PLAN_FAKE_RESTART, { permissionMode: 'default' });
+                const permissionMode = (response.mode && ['default', 'acceptEdits', 'bypassPermissions'].includes(response.mode))
+                    ? response.mode
+                    : 'default';
+                // Preserve existing EnhancedMode fields, only override permissionMode
+                this.session.queue.unshift(PLAN_FAKE_RESTART, { permissionMode } as EnhancedMode);
+
+                // Convert allowedPrompts to bash permissions if present
+                if (response.allowTools && response.allowTools.length > 0) {
+                    response.allowTools.forEach(tool => {
+                        if (tool.startsWith('Bash(') || tool === 'Bash') {
+                            this.parseBashPermission(tool);
+                        } else {
+                            this.allowedTools.add(tool);
+                        }
+                    });
                 }
+
                 pending.resolve({ behavior: 'deny', message: PLAN_FAKE_REJECT });
             } else {
                 pending.resolve({ behavior: 'deny', message: response.reason || 'Plan rejected' });
+            }
+        } else if (pending.toolName === 'AskUserQuestion') {
+            // Handle AskUserQuestion: include user answers in updatedInput
+            if (response.approved) {
+                const updatedInput = { ...(pending.input as Record<string, unknown>) };
+                if (response.answers) {
+                    updatedInput.answers = response.answers;
+                }
+                pending.resolve({ behavior: 'allow', updatedInput });
+            } else {
+                pending.resolve({ behavior: 'deny', message: response.reason || 'Question dismissed by user.' });
             }
         } else {
             // Handle default case for all other tools

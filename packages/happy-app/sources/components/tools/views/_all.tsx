@@ -17,6 +17,8 @@ import { CodexDiffView } from './CodexDiffView';
 import { AskUserQuestionView } from './AskUserQuestionView';
 import { GeminiEditView } from './GeminiEditView';
 import { GeminiExecuteView } from './GeminiExecuteView';
+import { TaskToolView } from './TaskToolView';
+import { SendMessageView } from './SendMessageView';
 
 export type ToolViewProps = {
     tool: ToolCall;
@@ -42,6 +44,13 @@ export const toolViewRegistry: Record<string, ToolViewComponent> = {
     MultiEdit: MultiEditView,
     Task: TaskView,
     AskUserQuestion: AskUserQuestionView,
+    // Task management tools
+    TaskCreate: TaskToolView,
+    TaskUpdate: TaskToolView,
+    TaskList: TaskToolView,
+    TaskGet: TaskToolView,
+    // Team/messaging tools
+    SendMessage: SendMessageView,
     // Gemini tools (lowercase)
     edit: GeminiEditView,
     execute: GeminiExecuteView,
@@ -78,3 +87,5 @@ export { TaskView } from './TaskView';
 export { AskUserQuestionView } from './AskUserQuestionView';
 export { GeminiEditView } from './GeminiEditView';
 export { GeminiExecuteView } from './GeminiExecuteView';
+export { TaskToolView } from './TaskToolView';
+export { SendMessageView } from './SendMessageView';

@@ -514,6 +514,18 @@ export const ru: TranslationStructure = {
             applyChanges: 'Обновить файл',
             viewDiff: 'Текущие изменения файла',
             question: 'Вопрос',
+            taskCreate: 'Создать задачу',
+            taskUpdate: 'Обновить задачу',
+            taskList: 'Список задач',
+            taskGet: 'Получить задачу',
+            taskStop: 'Остановить задачу',
+            taskOutput: 'Вывод задачи',
+            teamCreate: 'Создать команду',
+            teamDelete: 'Удалить команду',
+            sendMessage: 'Отправить сообщение',
+            enterPlanMode: 'Режим планирования',
+            skill: 'Навык',
+            toolSearch: 'Поиск инструментов',
         },
         desc: {
             terminalCmd: ({ cmd }: { cmd: string }) => `Терминал(команда: ${cmd})`,
@@ -538,7 +550,21 @@ export const ru: TranslationStructure = {
             other: 'Другое',
             otherDescription: 'Введите свой ответ',
             otherPlaceholder: 'Введите ваш ответ...',
-        }
+        },
+        taskTools: {
+            taskCount: ({ count }: { count: number }) => `${count} ${plural({ count, one: 'задача', few: 'задачи', many: 'задач' })}`,
+            taskId: ({ id }: { id: string }) => `Задача #${id}`,
+            updateStatus: ({ id, status }: { id: string; status: string }) => `Задача #${id} → ${status}`,
+            owner: ({ name }: { name: string }) => `Владелец: ${name}`,
+            blockedBy: ({ ids }: { ids: string }) => `Заблокировано: #${ids}`,
+            stopTask: ({ id }: { id: string }) => `Остановить задачу #${id}`,
+            taskOutput: ({ id }: { id: string }) => `Вывод задачи #${id}`,
+        },
+        teamTools: {
+            messageTo: ({ name }: { name: string }) => `Сообщение для ${name}`,
+            broadcast: 'Рассылка всем',
+            shutdownRequest: ({ name }: { name: string }) => `Запрос на завершение для ${name}`,
+        },
     },
 
     files: {
@@ -762,6 +788,10 @@ export const ru: TranslationStructure = {
             yesAllowAllEdits: 'Да, разрешить все правки в этой сессии',
             yesForTool: 'Да, больше не спрашивать для этого инструмента',
             noTellClaude: 'Нет, дать обратную связь',
+            approvePlan: 'Одобрить план',
+            approveAllowEdits: 'Одобрить + разрешить правки',
+            approveFullAccess: 'Одобрить + полный доступ',
+            rejectPlan: 'Отклонить план',
         }
     },
 

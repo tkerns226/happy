@@ -506,6 +506,18 @@ export const zhHans: TranslationStructure = {
             applyChanges: '更新文件',
             viewDiff: '当前文件更改',
             question: '问题',
+            taskCreate: '创建任务',
+            taskUpdate: '更新任务',
+            taskList: '任务列表',
+            taskGet: '获取任务',
+            taskStop: '停止任务',
+            taskOutput: '任务输出',
+            teamCreate: '创建团队',
+            teamDelete: '删除团队',
+            sendMessage: '发送消息',
+            enterPlanMode: '计划模式',
+            skill: '技能',
+            toolSearch: '搜索工具',
         },
         desc: {
             terminalCmd: ({ cmd }: { cmd: string }) => `终端(命令: ${cmd})`,
@@ -530,7 +542,21 @@ export const zhHans: TranslationStructure = {
             other: '其他',
             otherDescription: '输入您自己的答案',
             otherPlaceholder: '输入您的答案...',
-        }
+        },
+        taskTools: {
+            taskCount: ({ count }: { count: number }) => `${count}个任务`,
+            taskId: ({ id }: { id: string }) => `任务 #${id}`,
+            updateStatus: ({ id, status }: { id: string; status: string }) => `任务 #${id} → ${status}`,
+            owner: ({ name }: { name: string }) => `负责人: ${name}`,
+            blockedBy: ({ ids }: { ids: string }) => `被阻塞: #${ids}`,
+            stopTask: ({ id }: { id: string }) => `停止任务 #${id}`,
+            taskOutput: ({ id }: { id: string }) => `任务 #${id} 的输出`,
+        },
+        teamTools: {
+            messageTo: ({ name }: { name: string }) => `发送给 ${name}`,
+            broadcast: '广播给全部',
+            shutdownRequest: ({ name }: { name: string }) => `关闭请求发送给 ${name}`,
+        },
     },
 
     files: {
@@ -766,6 +792,10 @@ export const zhHans: TranslationStructure = {
             yesAllowAllEdits: '是，允许本次会话的所有编辑',
             yesForTool: '是，不再询问此工具',
             noTellClaude: '否，提供反馈',
+            approvePlan: '批准计划',
+            approveAllowEdits: '批准 + 允许编辑',
+            approveFullAccess: '批准 + 完全访问',
+            rejectPlan: '拒绝计划',
         }
     },
 
