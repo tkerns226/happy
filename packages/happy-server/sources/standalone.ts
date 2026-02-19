@@ -19,6 +19,7 @@ crypto.subtle.importKey = function (format: any, keyData: any, algorithm: any, e
 
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { createPGlite } from "./storage/pgliteLoader";
 
 const dataDir = process.env.DATA_DIR || "./data";
@@ -47,6 +48,9 @@ async function migrate() {
     const candidates = [
         path.join(process.cwd(), "prisma", "migrations"),
         path.join(path.dirname(process.execPath), "prisma", "migrations"),
+        // Monorepo/Docker: resolve relative to this source file (works regardless of cwd)
+        // @ts-expect-error import.meta.url works at runtime (ESM) but tsconfig uses commonjs
+        path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "prisma", "migrations"),
     ];
     for (const candidate of candidates) {
         if (fs.existsSync(candidate)) {
