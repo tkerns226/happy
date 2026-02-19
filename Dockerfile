@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y python3 make g++ build-essential && rm 
 WORKDIR /repo
 
 COPY package.json yarn.lock ./
+COPY scripts ./scripts
 
 RUN mkdir -p packages/happy-app packages/happy-server packages/happy-cli packages/happy-agent packages/happy-wire
 
@@ -24,7 +25,7 @@ COPY packages/happy-server/prisma packages/happy-server/prisma
 COPY packages/happy-cli/scripts packages/happy-cli/scripts
 COPY packages/happy-cli/tools packages/happy-cli/tools
 
-RUN yarn install --frozen-lockfile --ignore-engines
+RUN SKIP_HAPPY_WIRE_BUILD=1 yarn install --frozen-lockfile --ignore-engines
 
 # Stage 2: copy source and type-check
 FROM deps AS builder
