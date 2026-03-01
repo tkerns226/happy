@@ -124,6 +124,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1",
+    "@playwright/test": "^1.58.2",
     "@types/inquirer": "^9.0.9",
     "@types/node": ">=20",
     "cross-env": "^10.1.0",
