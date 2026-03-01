@@ -47,6 +47,8 @@ yarn-error.*
 CLAUDE.local.md
 
 .dev/worktree/*
+.serena/
+test-results/
 
 # Development planning notes (keep local, don't commit)
 notes/

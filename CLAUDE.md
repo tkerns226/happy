@@ -21,7 +21,7 @@ Each package has its own `CLAUDE.md` with package-specific guidelines. Always re
 ## Common Commands
 
 ```bash
-# Install dependencies
+# Install dependencies (also builds happy-wire via postinstall)
 yarn
 
 # Run CLI from source
@@ -44,6 +44,17 @@ yarn workspace happy-server test
 yarn workspace happy-server migrate    # Prisma migrations
 yarn workspace happy-server generate   # Generate Prisma client
 yarn workspace happy-server db         # Start local PostgreSQL in Docker
+
+# Run a single test file
+cd packages/happy-cli && npx vitest run src/api/api.test.ts
+cd packages/happy-server && npx vitest run sources/utils/lru.spec.ts
+```
+
+### Wire Package Dependency
+
+If you modify `happy-wire`, rebuild it before other packages can see the changes:
+```bash
+yarn workspace @slopus/happy-wire build
 ```
 
 ## Architecture Overview
@@ -79,7 +90,7 @@ All sensitive data is end-to-end encrypted before leaving devices:
 - **TypeScript strict mode** in all packages
 - **Path alias**: `@/*` maps to each package's source directory
 - **Imports**: Always use `@/` prefix for internal imports, all imports at top of file
-- **Testing**: Vitest across all packages; no mocking — tests make real API calls. Test files colocated with source (`.test.ts` or `.spec.ts`)
+- **Testing**: Vitest across all packages; no mocking — tests make real API calls. Test files colocated with source (`.test.ts` in CLI/wire/app, `.spec.ts` in server)
 - **No backward compatibility** unless explicitly requested
 - **4 spaces** for indentation (all packages)
 - **Functional style**: Prefer functions over classes, avoid enums (use maps)
@@ -91,5 +102,4 @@ All sensitive data is end-to-end encrypted before leaving devices:
 - **No loading errors shown to users** — always retry silently
 - **Sync operations** go through SyncSocket/SyncSession classes, triggered via `invalidateSync`
 - **Daemon mode** in CLI enables persistent background sessions, auto-updates on version change, and remote spawn from mobile
-- **Server is a relay** — it never decrypts user data, only routes encrypted blobs
 - **Prisma migrations are human-only** — never create migrations, only run `yarn generate` when needed
