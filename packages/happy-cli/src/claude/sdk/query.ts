@@ -340,7 +340,10 @@ export function query(config: {
 
     // Spawn Claude Code process
     // Use clean env for global claude to avoid local node_modules/.bin taking precedence
-    const spawnEnv = isCommandOnly ? getCleanEnv() : process.env
+    // Always strip CLAUDECODE to avoid "nested session" rejection when Happy daemon
+    // was started from a Claude Code terminal (Claude Code v2.1.63+ checks this)
+    const spawnEnv = isCommandOnly ? getCleanEnv() : { ...process.env }
+    delete spawnEnv.CLAUDECODE
     logDebug(`Spawning Claude Code process: ${spawnCommand} ${spawnArgs.join(' ')} (using ${isCommandOnly ? 'clean' : 'normal'} env)`)
 
     const child = spawn(spawnCommand, spawnArgs, {

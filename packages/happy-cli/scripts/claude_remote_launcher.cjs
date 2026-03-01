@@ -10,6 +10,10 @@ global.setTimeout = function(callback, delay, ...args) {
 Object.defineProperty(global.setTimeout, 'name', { value: 'setTimeout' });
 Object.defineProperty(global.setTimeout, 'length', { value: originalSetTimeout.length });
 
+// Strip CLAUDECODE to prevent "nested session" rejection when Happy daemon
+// was started from a Claude Code terminal (Claude Code v2.1.63+ checks this)
+delete process.env.CLAUDECODE;
+
 // Import global Claude Code CLI
 const { getClaudeCliPath, runClaudeCli } = require('./claude_version_utils.cjs');
 
