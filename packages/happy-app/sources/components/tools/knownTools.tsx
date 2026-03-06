@@ -1201,31 +1201,17 @@ export const knownTools = {
             return t('tools.names.skill');
         }
     },
+    // Internal Claude Code tool for loading deferred tools - no user-visible output
     'ToolSearch': {
-        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
-            if (typeof opts.tool.input.query === 'string') {
-                return opts.tool.input.query;
-            }
-            return t('tools.names.toolSearch');
-        },
         icon: ICON_SEARCH,
-        minimal: true,
-        input: z.object({
-            query: z.string().describe('Query to find deferred tools'),
-            max_results: z.number().optional(),
-        }).partial().passthrough(),
-        extractDescription: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
-            if (typeof opts.tool.input.query === 'string') {
-                return opts.tool.input.query;
-            }
-            return t('tools.names.toolSearch');
-        }
+        hidden: true,
     }
 } satisfies Record<string, {
     title?: string | ((opts: { metadata: Metadata | null, tool: ToolCall }) => string);
     icon: (size: number, color: string) => React.ReactNode;
     noStatus?: boolean;
     hideDefaultError?: boolean;
+    hidden?: boolean;
     isMutable?: boolean;
     input?: z.ZodObject<any>;
     result?: z.ZodObject<any>;
