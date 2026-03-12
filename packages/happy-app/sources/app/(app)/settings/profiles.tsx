@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingMutable } from '@/sync/storage';
 import { StyleSheet } from 'react-native-unistyles';
 import { useUnistyles } from 'react-native-unistyles';
 import { Typography } from '@/constants/Typography';
 import { t } from '@/text';
-import { Modal as HappyModal } from '@/modal/ModalManager';
+import { Modal } from '@/modal';
 import { layout } from '@/components/layout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWindowDimensions } from 'react-native';
@@ -59,7 +59,7 @@ function ProfileManager({ onProfileSelect, selectedProfileId }: ProfileManagerPr
 
     const handleDeleteProfile = (profile: AIBackendProfile) => {
         // Show confirmation dialog before deleting
-        Alert.alert(
+        Modal.alert(
             t('profiles.delete.title'),
             t('profiles.delete.message', { name: profile.name }),
             [
@@ -85,8 +85,7 @@ function ProfileManager({ onProfileSelect, selectedProfileId }: ProfileManagerPr
                         }
                     },
                 },
-            ],
-            { cancelable: true }
+            ]
         );
     };
 
