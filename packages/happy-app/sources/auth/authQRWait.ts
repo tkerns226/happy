@@ -11,6 +11,8 @@ export interface AuthCredentials {
 
 export async function authQRWait(keypair: QRAuthKeyPair, onProgress?: (dots: number) => void, shouldCancel?: () => boolean): Promise<AuthCredentials | null> {
     let dots = 0;
+    let consecutiveFailures = 0;
+    const maxConsecutiveFailures = 5;
     const serverUrl = getServerUrl();
 
     while (true) {
@@ -23,10 +25,13 @@ export async function authQRWait(keypair: QRAuthKeyPair, onProgress?: (dots: num
                 publicKey: encodeBase64(keypair.publicKey),
             });
 
+            // Reset failure counter on successful response
+            consecutiveFailures = 0;
+
             if (response.data.state === 'authorized') {
                 const token = response.data.token as string;
                 const encryptedResponse = decodeBase64(response.data.response);
-                
+
                 const decrypted = decryptBox(encryptedResponse, keypair.secretKey);
                 if (decrypted) {
                     console.log('\n\n✓ Authentication successful\n');
@@ -40,8 +45,15 @@ export async function authQRWait(keypair: QRAuthKeyPair, onProgress?: (dots: num
                 }
             }
         } catch (error) {
-            console.log('\n\nFailed to check authentication status. Please try again.');
-            return null;
+            consecutiveFailures++;
+            if (consecutiveFailures >= maxConsecutiveFailures) {
+                console.log('\n\nFailed to check authentication status after multiple retries. Please try again.');
+                return null;
+            }
+            // Exponential backoff: 1s, 2s, 4s, 8s (capped)
+            const backoffMs = Math.min(1000 * Math.pow(2, consecutiveFailures - 1), 8000);
+            await new Promise(resolve => setTimeout(resolve, backoffMs));
+            continue;
         }
 
         // Call progress callback if provided
