@@ -177,12 +177,37 @@ class AuthModule {
         }
     }
 
-    // Cleanup old entries (optional - can be called periodically)
+    // Cleanup old entries - evicts tokens older than 24 hours
     cleanup(): void {
-        // Note: Since tokens are cached "forever" as requested,
-        // we don't do automatic cleanup. This method exists if needed later.
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        const now = Date.now();
+        let evicted = 0;
+        for (const [token, entry] of this.tokenCache.entries()) {
+            if (now - entry.cachedAt > maxAge) {
+                this.tokenCache.delete(token);
+                evicted++;
+            }
+        }
         const stats = this.getCacheStats();
-        log({ module: 'auth' }, `Token cache size: ${stats.size} entries`);
+        log({ module: 'auth' }, `Token cache cleanup: evicted ${evicted}, remaining ${stats.size} entries`);
+    }
+
+    private cleanupInterval: ReturnType<typeof setInterval> | null = null;
+
+    // Start periodic cleanup (every hour)
+    startCleanupInterval(): void {
+        if (this.cleanupInterval) {
+            return; // Already running
+        }
+        const oneHour = 60 * 60 * 1000;
+        this.cleanupInterval = setInterval(() => {
+            this.cleanup();
+        }, oneHour);
+        // Allow the process to exit even if the interval is active
+        if (this.cleanupInterval.unref) {
+            this.cleanupInterval.unref();
+        }
+        log({ module: 'auth' }, 'Token cache cleanup interval started (every 1 hour)');
     }
 }
 

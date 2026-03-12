@@ -36,8 +36,9 @@ export async function startApi() {
         loggerInstance: logger,
         bodyLimit: 1024 * 1024 * 100, // 100MB
     });
+    const corsOrigins = process.env.CORS_ORIGINS;
     app.register(import('@fastify/cors'), {
-        origin: '*',
+        origin: corsOrigins ? corsOrigins.split(',').map(o => o.trim()) : '*',
         allowedHeaders: '*',
         methods: ['GET', 'POST', 'DELETE']
     });

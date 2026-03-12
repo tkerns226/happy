@@ -32,6 +32,7 @@ async function main() {
     await initGithub();
     await loadFiles();
     await auth.init();
+    auth.startCleanupInterval();
 
     //
     // Start

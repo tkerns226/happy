@@ -7,8 +7,7 @@ export function voiceRoutes(app: Fastify) {
         preHandler: app.authenticate,
         schema: {
             body: z.object({
-                agentId: z.string(),
-                revenueCatPublicKey: z.string().optional()
+                agentId: z.string()
             }),
             response: {
                 200: z.object({
@@ -19,28 +18,32 @@ export function voiceRoutes(app: Fastify) {
                 400: z.object({
                     allowed: z.boolean(),
                     error: z.string()
+                }),
+                500: z.object({
+                    allowed: z.boolean(),
+                    error: z.string()
                 })
             }
         }
     }, async (request, reply) => {
         const userId = request.userId; // CUID from JWT
-        const { agentId, revenueCatPublicKey } = request.body;
+        const { agentId } = request.body;
 
         log({ module: 'voice' }, `Voice token request from user ${userId}`);
 
         const isDevelopment = process.env.NODE_ENV === 'development' || process.env.ENV === 'dev';
 
-        // Production requires RevenueCat key
-        if (!isDevelopment && !revenueCatPublicKey) {
-            log({ module: 'voice' }, 'Production environment requires RevenueCat public key');
-            return reply.code(400).send({ 
-                allowed: false,
-                error: 'RevenueCat public key required'
-            });
-        }
-
         // Check subscription in production
-        if (!isDevelopment && revenueCatPublicKey) {
+        if (!isDevelopment) {
+            const revenueCatPublicKey = process.env.REVENUECAT_PUBLIC_KEY;
+            if (!revenueCatPublicKey) {
+                log({ module: 'voice' }, 'Missing REVENUECAT_PUBLIC_KEY environment variable');
+                return reply.code(500).send({
+                    allowed: false,
+                    error: 'Server misconfiguration: missing REVENUECAT_PUBLIC_KEY'
+                });
+            }
+
             const response = await fetch(
                 `https://api.revenuecat.com/v1/subscribers/${userId}`,
                 {

@@ -230,36 +230,11 @@ export function sessionRoutes(app: Fastify) {
         const userId = request.userId;
         const { tag, metadata, dataEncryptionKey } = request.body;
 
-        const session = await db.session.findFirst({
-            where: {
-                accountId: userId,
-                tag: tag
-            }
-        });
-        if (session) {
-            log({ module: 'session-create', sessionId: session.id, userId, tag }, `Found existing session: ${session.id} for tag ${tag}`);
-            return reply.send({
-                session: {
-                    id: session.id,
-                    seq: session.seq,
-                    metadata: session.metadata,
-                    metadataVersion: session.metadataVersion,
-                    agentState: session.agentState,
-                    agentStateVersion: session.agentStateVersion,
-                    dataEncryptionKey: session.dataEncryptionKey ? Buffer.from(session.dataEncryptionKey).toString('base64') : null,
-                    active: session.active,
-                    activeAt: session.lastActiveAt.getTime(),
-                    createdAt: session.createdAt.getTime(),
-                    updatedAt: session.updatedAt.getTime(),
-                    lastMessage: null
-                }
-            });
-        } else {
-
+        try {
             // Resolve seq
             const updSeq = await allocateUserSeq(userId);
 
-            // Create session
+            // Attempt to create session directly
             log({ module: 'session-create', userId, tag }, `Creating new session for user ${userId} with tag ${tag}`);
             const session = await db.session.create({
                 data: {
@@ -302,6 +277,37 @@ export function sessionRoutes(app: Fastify) {
                     lastMessage: null
                 }
             });
+        } catch (e) {
+            // Handle unique constraint violation (accountId + tag) - session already exists
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+                const existing = await db.session.findFirst({
+                    where: {
+                        accountId: userId,
+                        tag: tag
+                    }
+                });
+                if (!existing) {
+                    throw e; // Should not happen, but be safe
+                }
+                log({ module: 'session-create', sessionId: existing.id, userId, tag }, `Found existing session: ${existing.id} for tag ${tag}`);
+                return reply.send({
+                    session: {
+                        id: existing.id,
+                        seq: existing.seq,
+                        metadata: existing.metadata,
+                        metadataVersion: existing.metadataVersion,
+                        agentState: existing.agentState,
+                        agentStateVersion: existing.agentStateVersion,
+                        dataEncryptionKey: existing.dataEncryptionKey ? Buffer.from(existing.dataEncryptionKey).toString('base64') : null,
+                        active: existing.active,
+                        activeAt: existing.lastActiveAt.getTime(),
+                        createdAt: existing.createdAt.getTime(),
+                        updatedAt: existing.updatedAt.getTime(),
+                        lastMessage: null
+                    }
+                });
+            }
+            throw e;
         }
     });
 
