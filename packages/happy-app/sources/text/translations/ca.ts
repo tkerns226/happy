@@ -301,6 +301,16 @@ export const ca: TranslationStructure = {
 
     session: {
         inputPlaceholder: 'Escriu un missatge...',
+        noMessagesYet: 'Encara no hi ha missatges',
+        createdAt: 'Creat',
+    },
+
+    voiceAssistant: {
+        connecting: 'Connectant...',
+        active: 'Assistent de veu actiu',
+        connectionError: 'Error de connexió',
+        title: 'Assistent de veu',
+        tapToEnd: 'Toca per finalitzar',
     },
 
     commandPalette: {

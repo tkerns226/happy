@@ -333,6 +333,16 @@ export const ja: TranslationStructure = {
 
     session: {
         inputPlaceholder: 'メッセージを入力...',
+        noMessagesYet: 'メッセージはまだありません',
+        createdAt: '作成日時',
+    },
+
+    voiceAssistant: {
+        connecting: '接続中...',
+        active: '音声アシスタント有効',
+        connectionError: '接続エラー',
+        title: '音声アシスタント',
+        tapToEnd: 'タップして終了',
     },
 
     commandPalette: {

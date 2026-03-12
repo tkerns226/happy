@@ -302,6 +302,16 @@ export const zhHant: TranslationStructure = {
 
     session: {
         inputPlaceholder: '輸入訊息...',
+        noMessagesYet: '暫無訊息',
+        createdAt: '建立時間',
+    },
+
+    voiceAssistant: {
+        connecting: '連線中...',
+        active: '語音助理已啟用',
+        connectionError: '連線錯誤',
+        title: '語音助理',
+        tapToEnd: '點擊結束',
     },
 
     commandPalette: {

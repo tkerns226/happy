@@ -312,6 +312,16 @@ export const pl: TranslationStructure = {
 
     session: {
         inputPlaceholder: 'Wpisz wiadomość...',
+        noMessagesYet: 'Brak wiadomości',
+        createdAt: 'Utworzono',
+    },
+
+    voiceAssistant: {
+        connecting: 'Łączenie...',
+        active: 'Asystent głosowy aktywny',
+        connectionError: 'Błąd połączenia',
+        title: 'Asystent głosowy',
+        tapToEnd: 'Dotknij, aby zakończyć',
     },
 
     commandPalette: {

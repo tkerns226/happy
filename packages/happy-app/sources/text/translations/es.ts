@@ -301,6 +301,16 @@ export const es: TranslationStructure = {
 
     session: {
         inputPlaceholder: 'Escriba un mensaje ...',
+        noMessagesYet: 'Sin mensajes aún',
+        createdAt: 'Creado',
+    },
+
+    voiceAssistant: {
+        connecting: 'Conectando...',
+        active: 'Asistente de voz activo',
+        connectionError: 'Error de conexión',
+        title: 'Asistente de voz',
+        tapToEnd: 'Toca para finalizar',
     },
 
     commandPalette: {

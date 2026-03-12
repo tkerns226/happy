@@ -303,6 +303,16 @@ export const zhHans: TranslationStructure = {
 
     session: {
         inputPlaceholder: '输入消息...',
+        noMessagesYet: '暂无消息',
+        createdAt: '创建时间',
+    },
+
+    voiceAssistant: {
+        connecting: '连接中...',
+        active: '语音助手已启用',
+        connectionError: '连接错误',
+        title: '语音助手',
+        tapToEnd: '点击结束',
     },
 
     commandPalette: {

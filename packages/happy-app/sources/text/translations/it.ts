@@ -330,6 +330,16 @@ export const it: TranslationStructure = {
 
     session: {
         inputPlaceholder: 'Scrivi un messaggio ...',
+        noMessagesYet: 'Nessun messaggio ancora',
+        createdAt: 'Creato',
+    },
+
+    voiceAssistant: {
+        connecting: 'Connessione...',
+        active: 'Assistente vocale attivo',
+        connectionError: 'Errore di connessione',
+        title: 'Assistente vocale',
+        tapToEnd: 'Tocca per terminare',
     },
 
     commandPalette: {

@@ -393,6 +393,16 @@ export const ru: TranslationStructure = {
 
     session: {
         inputPlaceholder: 'Введите сообщение...',
+        noMessagesYet: 'Сообщений пока нет',
+        createdAt: 'Создано',
+    },
+
+    voiceAssistant: {
+        connecting: 'Подключение...',
+        active: 'Голосовой помощник активен',
+        connectionError: 'Ошибка подключения',
+        title: 'Голосовой помощник',
+        tapToEnd: 'Нажмите для завершения',
     },
 
     commandPalette: {

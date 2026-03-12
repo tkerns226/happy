@@ -300,6 +300,16 @@ export const en = {
 
     session: {
         inputPlaceholder: 'Type a message ...',
+        noMessagesYet: 'No messages yet',
+        createdAt: 'Created',
+    },
+
+    voiceAssistant: {
+        connecting: 'Connecting...',
+        active: 'Voice Assistant Active',
+        connectionError: 'Connection Error',
+        title: 'Voice Assistant',
+        tapToEnd: 'Tap to end',
     },
 
     commandPalette: {
