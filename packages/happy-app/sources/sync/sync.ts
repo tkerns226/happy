@@ -1587,6 +1587,10 @@ class Sync {
         } else if (this.appState !== 'active') {
             this.maybeStartBackgroundSendWatchdog();
         }
+
+        // After successfully sending, fetch any messages we may have missed
+        // (e.g., if socket events were lost while app was in background)
+        this.getMessagesSync(sessionId).invalidate();
     }
 
     private fetchMessages = async (sessionId: string) => {
@@ -1817,8 +1821,11 @@ class Sync {
                 }
             }
 
-            // Ping session
-            this.onSessionVisible(updateData.body.sid);
+            // Note: NOT calling onSessionVisible here — the fast path already applied the
+            // message above, and the slow path already triggered fetchMessages. Calling
+            // onSessionVisible would redundantly trigger another fetchMessages, holding the
+            // sessionMessageLock during an HTTP round-trip and blocking fast-path processing
+            // of subsequent socket events.
 
         } else if (updateData.body.t === 'new-session') {
             log.log('🆕 New session update received');
