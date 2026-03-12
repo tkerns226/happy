@@ -176,11 +176,18 @@ export class PermissionHandler {
         //
 
         let toolCallId = this.resolveToolCallId(toolName, input);
-        if (!toolCallId) { // What if we got permission before tool call
-            await delay(1000);
-            toolCallId = this.resolveToolCallId(toolName, input);
+        if (!toolCallId) { // What if we got permission before tool call - poll with retries
+            const maxAttempts = 15;
+            const pollIntervalMs = 200;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                await delay(pollIntervalMs);
+                toolCallId = this.resolveToolCallId(toolName, input);
+                if (toolCallId) {
+                    break;
+                }
+            }
             if (!toolCallId) {
-                throw new Error(`Could not resolve tool call ID for ${toolName}`);
+                throw new Error(`Could not resolve tool call ID for ${toolName} after ${maxAttempts} attempts (${(maxAttempts * pollIntervalMs) / 1000}s). The tool call may not have been registered yet.`);
             }
         }
         return this.handlePermissionRequest(toolCallId, toolName, input, options.signal);

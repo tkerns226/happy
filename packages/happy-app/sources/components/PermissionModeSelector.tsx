@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pressable, Platform, View } from 'react-native';
+import { Pressable, Platform, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet } from 'react-native-unistyles';
 import { hapticsLight } from './haptics';
 import { hackMode, hackModes } from '@/sync/modeHacks';
 import type {
@@ -55,14 +56,31 @@ export const PermissionModeSelector: React.FC<PermissionModeSelectorProps> = ({
                 borderRadius: Platform.select({ default: 16, android: 20 }),
                 paddingHorizontal: 12,
                 paddingVertical: 6,
-                width: 120,
                 justifyContent: 'center',
-                height: 32,
+                minHeight: 32,
                 opacity: disabled ? 0.5 : 1,
             }}
         >
             <Ionicons name={'hammer-outline'} size={16} color={'black'} style={{ marginRight: 4 }} />
-            <View />
+            <View style={{ flexShrink: 1 }}>
+                <Text style={styles.modeName} numberOfLines={1}>{hackedMode.name}</Text>
+                {!!hackedMode.description && (
+                    <Text style={styles.modeDescription} numberOfLines={1}>{hackedMode.description}</Text>
+                )}
+            </View>
         </Pressable>
     );
 };
+
+const styles = StyleSheet.create((theme) => ({
+    modeName: {
+        fontSize: 14,
+        color: theme.colors.text,
+        fontWeight: '500',
+    },
+    modeDescription: {
+        fontSize: 11,
+        color: theme.colors.textSecondary,
+        marginTop: 1,
+    },
+}));
