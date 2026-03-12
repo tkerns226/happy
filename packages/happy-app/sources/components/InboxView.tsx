@@ -111,23 +111,25 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
     const isLoading = !feedLoaded || !friendsLoaded;
     const isEmpty = !isLoading && friendRequests.length === 0 && requestedFriends.length === 0 && friends.length === 0 && feedItems.length === 0;
 
+    const tabletHeader = isTablet ? (
+        <View style={{ backgroundColor: theme.colors.groupped.background }}>
+            <Header
+                title={<HeaderTitleTablet />}
+                headerRight={() => <HeaderRightTablet />}
+                headerLeft={() => null}
+                headerShadowVisible={false}
+                headerTransparent={true}
+            />
+            {realtimeStatus !== 'disconnected' && (
+                <VoiceAssistantStatusBar variant="full" />
+            )}
+        </View>
+    ) : null;
+
     if (isLoading) {
         return (
             <View style={styles.container}>
-                {isTablet && (
-                    <View style={{ backgroundColor: theme.colors.groupped.background }}>
-                        <Header
-                            title={<HeaderTitleTablet />}
-                            headerRight={() => <HeaderRightTablet />}
-                            headerLeft={() => null}
-                            headerShadowVisible={false}
-                            headerTransparent={true}
-                        />
-                        {realtimeStatus !== 'disconnected' && (
-                            <VoiceAssistantStatusBar variant="full" />
-                        )}
-                    </View>
-                )}
+                {tabletHeader}
                 <UpdateBanner />
                 <View style={styles.emptyContainer}>
                     <ActivityIndicator size="large" color={theme.colors.textSecondary} />
@@ -139,20 +141,7 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
     if (isEmpty) {
         return (
             <View style={styles.container}>
-                {isTablet && (
-                    <View style={{ backgroundColor: theme.colors.groupped.background }}>
-                        <Header
-                            title={<HeaderTitleTablet />}
-                            headerRight={() => <HeaderRightTablet />}
-                            headerLeft={() => null}
-                            headerShadowVisible={false}
-                            headerTransparent={true}
-                        />
-                        {realtimeStatus !== 'disconnected' && (
-                            <VoiceAssistantStatusBar variant="full" />
-                        )}
-                    </View>
-                )}
+                {tabletHeader}
                 <UpdateBanner />
                 <View style={styles.emptyContainer}>
                     <Image
@@ -170,20 +159,7 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
 
     return (
         <View style={styles.container}>
-            {isTablet && (
-                <View style={{ backgroundColor: theme.colors.groupped.background }}>
-                    <Header
-                        title={<HeaderTitleTablet />}
-                        headerRight={() => <HeaderRightTablet />}
-                        headerLeft={() => null}
-                        headerShadowVisible={false}
-                        headerTransparent={true}
-                    />
-                    {realtimeStatus !== 'disconnected' && (
-                        <VoiceAssistantStatusBar variant="full" />
-                    )}
-                </View>
-            )}
+            {tabletHeader}
             <ScrollView contentContainerStyle={{
                 maxWidth: layout.maxWidth,
                 alignSelf: 'center',
