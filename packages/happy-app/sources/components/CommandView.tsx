@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Platform } from 'react-native';
-import { useUnistyles } from 'react-native-unistyles';
+import { Text, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
+import { Typography } from '@/constants/Typography';
 
 interface CommandViewProps {
     command: string;
@@ -26,72 +27,12 @@ export const CommandView = React.memo<CommandViewProps>(({
     fullWidth,
     hideEmptyOutput,
 }) => {
-    const { theme } = useUnistyles();
     // Use legacy output if new props aren't provided
     const hasNewProps = stdout !== undefined || stderr !== undefined || error !== undefined;
 
-    const styles = StyleSheet.create({
-        container: {
-            backgroundColor: theme.colors.terminal.background,
-            borderRadius: 8,
-            overflow: 'hidden',
-            padding: 16,
-            alignItems: 'flex-start',
-            justifyContent: 'flex-start',
-        },
-        line: {
-            alignItems: 'baseline',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-        },
-        promptText: {
-            fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
-            fontSize: 14,
-            lineHeight: 20,
-            color: theme.colors.terminal.prompt,
-            fontWeight: '600',
-        },
-        commandText: {
-            fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
-            fontSize: 14,
-            color: theme.colors.terminal.command,
-            lineHeight: 20,
-            flex: 1,
-        },
-        stdout: {
-            fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
-            fontSize: 13,
-            color: theme.colors.terminal.stdout,
-            lineHeight: 18,
-            marginTop: 8,
-        },
-        stderr: {
-            fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
-            fontSize: 13,
-            color: theme.colors.terminal.stderr,
-            lineHeight: 18,
-            marginTop: 8,
-        },
-        error: {
-            fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
-            fontSize: 13,
-            color: theme.colors.terminal.error,
-            lineHeight: 18,
-            marginTop: 8,
-        },
-        emptyOutput: {
-            fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
-            fontSize: 13,
-            color: theme.colors.terminal.emptyOutput,
-            lineHeight: 18,
-            marginTop: 8,
-            fontStyle: 'italic',
-        },
-    });
-
     return (
         <View style={[
-            styles.container, 
+            styles.container,
             maxHeight ? { maxHeight } : undefined,
             fullWidth ? { width: '100%' } : undefined
         ]}>
@@ -133,3 +74,61 @@ export const CommandView = React.memo<CommandViewProps>(({
     );
 });
 
+const styles = StyleSheet.create((theme) => ({
+    container: {
+        backgroundColor: theme.colors.terminal.background,
+        borderRadius: 8,
+        overflow: 'hidden',
+        padding: 16,
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+    },
+    line: {
+        alignItems: 'baseline',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    promptText: {
+        ...Typography.mono(),
+        fontSize: 14,
+        lineHeight: 20,
+        color: theme.colors.terminal.prompt,
+        fontWeight: '600',
+    },
+    commandText: {
+        ...Typography.mono(),
+        fontSize: 14,
+        color: theme.colors.terminal.command,
+        lineHeight: 20,
+        flex: 1,
+    },
+    stdout: {
+        ...Typography.mono(),
+        fontSize: 13,
+        color: theme.colors.terminal.stdout,
+        lineHeight: 18,
+        marginTop: 8,
+    },
+    stderr: {
+        ...Typography.mono(),
+        fontSize: 13,
+        color: theme.colors.terminal.stderr,
+        lineHeight: 18,
+        marginTop: 8,
+    },
+    error: {
+        ...Typography.mono(),
+        fontSize: 13,
+        color: theme.colors.terminal.error,
+        lineHeight: 18,
+        marginTop: 8,
+    },
+    emptyOutput: {
+        ...Typography.mono(),
+        fontSize: 13,
+        color: theme.colors.terminal.emptyOutput,
+        lineHeight: 18,
+        marginTop: 8,
+        fontStyle: 'italic',
+    },
+}));

@@ -327,22 +327,22 @@ const style = StyleSheet.create((theme) => ({
         color: theme.colors.text,
     },
     header1: {
-        fontSize: 16,
-        lineHeight: 24,  // Reduced from 36 to 24
+        fontSize: 22,
+        lineHeight: 30,
         fontWeight: '900',
         marginTop: 16,
         marginBottom: 8
     },
     header2: {
-        fontSize: 20,
-        lineHeight: 24,  // Reduced from 36 to 32
+        fontSize: 18,
+        lineHeight: 26,
         fontWeight: '600',
         marginTop: 16,
         marginBottom: 8
     },
     header3: {
         fontSize: 16,
-        lineHeight: 28,  // Reduced from 32 to 28
+        lineHeight: 24,
         fontWeight: '600',
         marginTop: 16,
         marginBottom: 8,

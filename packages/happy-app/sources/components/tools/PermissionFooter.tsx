@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { sessionAllow, sessionDeny } from '@/sync/ops';
-import { useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 import { storage } from '@/sync/storage';
 import { t } from '@/text';
 
@@ -22,7 +22,6 @@ interface PermissionFooterProps {
 }
 
 export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, sessionId, toolName, toolInput, metadata }) => {
-    const { theme } = useUnistyles();
     const [loadingButton, setLoadingButton] = useState<'allow' | 'deny' | 'abort' | 'acceptEdits' | 'bypass' | null>(null);
     const [loadingAllEdits, setLoadingAllEdits] = useState(false);
     const [loadingForSession, setLoadingForSession] = useState(false);
@@ -173,101 +172,7 @@ export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, 
     const isCodexApprovedForSession = isCodex && isApproved && permission.decision === 'approved_for_session';
     const isCodexAborted = isCodex && isDenied && permission.decision === 'abort';
 
-    const styles = StyleSheet.create({
-        container: {
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            justifyContent: 'center',
-        },
-        buttonContainer: {
-            flexDirection: 'column',
-            gap: 4,
-            alignItems: 'flex-start',
-        },
-        button: {
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: 1,
-            backgroundColor: 'transparent',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            minHeight: 32,
-            borderLeftWidth: 3,
-            borderLeftColor: 'transparent',
-            alignSelf: 'stretch',
-        },
-        buttonAllow: {
-            backgroundColor: 'transparent',
-        },
-        buttonDeny: {
-            backgroundColor: 'transparent',
-        },
-        buttonAllowAll: {
-            backgroundColor: 'transparent',
-        },
-        buttonSelected: {
-            backgroundColor: 'transparent',
-            borderLeftColor: theme.colors.text,
-        },
-        buttonInactive: {
-            opacity: 0.3,
-        },
-        buttonContent: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 4,
-            minHeight: 20,
-        },
-        icon: {
-            marginRight: 2,
-        },
-        buttonText: {
-            fontSize: 14,
-            fontWeight: '400',
-            color: theme.colors.textSecondary,
-        },
-        buttonTextAllow: {
-            color: theme.colors.permissionButton.allow.background,
-            fontWeight: '500',
-        },
-        buttonTextDeny: {
-            color: theme.colors.permissionButton.deny.background,
-            fontWeight: '500',
-        },
-        buttonTextAllowAll: {
-            color: theme.colors.permissionButton.allowAll.background,
-            fontWeight: '500',
-        },
-        buttonTextSelected: {
-            color: theme.colors.text,
-            fontWeight: '500',
-        },
-        buttonForSession: {
-            backgroundColor: 'transparent',
-        },
-        buttonTextForSession: {
-            color: theme.colors.permissionButton.allowAll.background,
-            fontWeight: '500',
-        },
-        loadingIndicatorAllow: {
-            color: theme.colors.permissionButton.allow.background,
-        },
-        loadingIndicatorDeny: {
-            color: theme.colors.permissionButton.deny.background,
-        },
-        loadingIndicatorAllowAll: {
-            color: theme.colors.permissionButton.allowAll.background,
-        },
-        loadingIndicatorForSession: {
-            color: theme.colors.permissionButton.allowAll.background,
-        },
-        iconApproved: {
-            color: theme.colors.permissionButton.allow.background,
-        },
-        iconDenied: {
-            color: theme.colors.permissionButton.deny.background,
-        },
-    });
+    const styles = stylesheet;
 
     // Render Codex buttons if this is a Codex session
     if (isCodex) {
@@ -638,3 +543,99 @@ export const PermissionFooter: React.FC<PermissionFooterProps> = ({ permission, 
         </View>
     );
 };
+
+const stylesheet = StyleSheet.create((theme) => ({
+    container: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        justifyContent: 'center',
+    },
+    buttonContainer: {
+        flexDirection: 'column',
+        gap: 4,
+        alignItems: 'flex-start',
+    },
+    button: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: 'transparent',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        minHeight: 32,
+        borderLeftWidth: 3,
+        borderLeftColor: 'transparent',
+        alignSelf: 'stretch',
+    },
+    buttonAllow: {
+        backgroundColor: 'transparent',
+    },
+    buttonDeny: {
+        backgroundColor: 'transparent',
+    },
+    buttonAllowAll: {
+        backgroundColor: 'transparent',
+    },
+    buttonSelected: {
+        backgroundColor: 'transparent',
+        borderLeftColor: theme.colors.text,
+    },
+    buttonInactive: {
+        opacity: 0.3,
+    },
+    buttonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        minHeight: 20,
+    },
+    icon: {
+        marginRight: 2,
+    },
+    buttonText: {
+        fontSize: 14,
+        fontWeight: '400',
+        color: theme.colors.textSecondary,
+    },
+    buttonTextAllow: {
+        color: theme.colors.permissionButton.allow.background,
+        fontWeight: '500',
+    },
+    buttonTextDeny: {
+        color: theme.colors.permissionButton.deny.background,
+        fontWeight: '500',
+    },
+    buttonTextAllowAll: {
+        color: theme.colors.permissionButton.allowAll.background,
+        fontWeight: '500',
+    },
+    buttonTextSelected: {
+        color: theme.colors.text,
+        fontWeight: '500',
+    },
+    buttonForSession: {
+        backgroundColor: 'transparent',
+    },
+    buttonTextForSession: {
+        color: theme.colors.permissionButton.allowAll.background,
+        fontWeight: '500',
+    },
+    loadingIndicatorAllow: {
+        color: theme.colors.permissionButton.allow.background,
+    },
+    loadingIndicatorDeny: {
+        color: theme.colors.permissionButton.deny.background,
+    },
+    loadingIndicatorAllowAll: {
+        color: theme.colors.permissionButton.allowAll.background,
+    },
+    loadingIndicatorForSession: {
+        color: theme.colors.permissionButton.allowAll.background,
+    },
+    iconApproved: {
+        color: theme.colors.permissionButton.allow.background,
+    },
+    iconDenied: {
+        color: theme.colors.permissionButton.deny.background,
+    },
+}));
