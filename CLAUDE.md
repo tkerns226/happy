@@ -97,6 +97,15 @@ All sensitive data is end-to-end encrypted before leaving devices:
 - **Logging**: File-based logging in CLI to avoid disturbing terminal UI; no console logging in server unless asked
 - **No unnecessary files**: Prefer editing existing files over creating new ones
 
+## Toolkit Reference (D:/toolkit)
+
+Reusable patterns extracted from open-source analysis. Copy/adapt, don't import directly.
+
+- **nextActions errors**: `D:/toolkit/patterns/nextactions-errors/` — Fastify error middleware with actionable advice
+- **Docker cache trick**: `D:/toolkit/docker/` — 5-stage Dockerfile with version-strip cache optimization
+- **Broadcast auth**: `D:/toolkit/components/broadcast-auth.ts` — cross-tab BroadcastChannel auth coordination
+- **Note**: happy-wire already implements the shared Zod schema pattern — toolkit pattern was modeled partly after this
+
 ## Key Architectural Decisions
 
 - **No loading errors shown to users** — always retry silently
